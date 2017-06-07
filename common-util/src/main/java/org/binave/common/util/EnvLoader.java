@@ -17,6 +17,7 @@
 package org.binave.common.util;
 
 //import javax.servlet.ServletContext;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ public class EnvLoader {
 //            String key = keys.nextElement();
 //            map.put(
 //                    key,
-//                    getStringList(
+//                    splitString(
 //                            context.getInitParameter(key)
 //                    )
 //            );
@@ -57,9 +58,7 @@ public class EnvLoader {
         for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
             map.put(
                     entry.getKey(),
-                    getStringList(
-                            entry.getValue()
-                    )
+                    CharUtil.splitString(entry.getValue())
             );
         }
         return map;
@@ -84,9 +83,7 @@ public class EnvLoader {
         for (Map.Entry entry : pp.entrySet()) {
             map.put(
                     String.valueOf(entry.getKey()),
-                    getStringList(
-                            String.valueOf(entry.getValue())
-                    )
+                    CharUtil.splitString(String.valueOf(entry.getValue()))
             );
         }
         return map;
@@ -113,10 +110,5 @@ public class EnvLoader {
         return properties;
     }
 
-    private static List<String> getStringList(String str) {
-        List<String> stringList = new ArrayList<>();
-        Collections.addAll(stringList, str.replaceAll(" ", "").split(","));
-        return stringList;
-    }
 
 }

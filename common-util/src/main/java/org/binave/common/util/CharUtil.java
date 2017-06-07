@@ -289,11 +289,51 @@ public class CharUtil {
      * @return 标签体内容
      */
     public static List<String> getLabelText(String xml, String tag) {
-        Matcher matcher = Pattern.compile("(?<=<" + tag + "([^<]+)?>).*?(?=</" + tag + ")").
-                matcher(xml);
-        List<String> bodyList = new ArrayList<>();
-        while (matcher.find()) bodyList.add(matcher.group());
-        return bodyList.size() == 0 ? new ArrayList<>(0) : bodyList;
+        List<String> list = new ArrayList<>();
+
+        String tagPre = '<' + tag;
+        String tagSuf = "</" + tag; // 此处不支持 </ tag> 这种形式
+
+        int tagLen = tag.length() + 1; // labPre 长度
+        int tagIndex = xml.indexOf(tagPre);
+        int sufIndex; // 结尾坐标
+
+        while (tagIndex != -1) {
+            sufIndex = tagIndex;
+            char c = xml.charAt(tagIndex + tagLen);
+            if (c == ' ' || c == '>') {
+                int preIndex;
+                if ((preIndex = xml.indexOf(">", tagIndex + tagLen)) < 0) break;
+                if ((sufIndex = xml.indexOf(tagSuf, preIndex + 1)) < 0) break;
+                list.add(xml.substring(preIndex + 1, sufIndex));
+            }
+            tagIndex = xml.indexOf(tagPre, sufIndex + tagLen + 1);
+        }
+        return list;
+    }
+
+    /**
+     * 对字符串进行默认切割
+     *
+     * @param str   [,;|]
+     */
+    public static List<String> splitString(String str) {
+        if (str == null || str.length() == 0)
+            return new ArrayList<>(0);
+        List<String> list = new ArrayList<>();
+
+        int p = 0;
+        int i = 0;
+
+        for (; i < str.length(); i++) {
+            int c = str.charAt(i);
+            if (c == ',' || c == ';' || c == '|') {
+                if (i - p > 0) list.add(str.substring(p, i));
+                p = i + 1;
+            }
+        }
+        if (i - p > 0) list.add(str.substring(p, i));
+        return list;
     }
 
     /**
