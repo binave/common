@@ -16,34 +16,35 @@
 
 package org.binave.common.api;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * 混合多个参数
- * 多个参数 {@link #<By>} 共同映射一个 #Target
+ * 混合两个参数
  *
  * @author by bin jin on 2017/6/5.
  * @since 1.8
  */
-public class Mixture<By> {
+public class Dual<Alpha, Beta> {
 
     private int hash;
 
-    private By[] by;
+    private Alpha alpha;
+    private Beta beta;
 
-    @SafeVarargs
-    public Mixture(By... by) {
-        if (by == null || by.length == 0)
+    public Dual(Alpha alpha, Beta beta) {
+        if (alpha == null || beta == null)
             throw new IllegalArgumentException();
-        this.by = by;
-        if (by.length > 1) {
-            for (By b : by) this.hash += b.hashCode();
-        } else this.hash = by[0].hashCode();
+        this.alpha = alpha;
+        this.beta = beta;
+        this.hash = alpha.hashCode() + beta.hashCode();
     }
 
-    public By[] get() {
-        return this.by;
+    public Alpha getAlpha() {
+        return this.alpha;
+    }
+
+    public Beta getBeta() {
+        return this.beta;
     }
 
     @Override
@@ -56,26 +57,19 @@ public class Mixture<By> {
      */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Mixture) {
-            try {
-                Mixture m = (Mixture) o;
-                if (m.by.length != this.by.length) return false;
-                if (this.by.length > 1) {
-                    for (int i = 0; i < this.by.length; i++)
-                        if (!Objects.equals(m.by[i], this.by[i])) return false;
-                    return true;
-                } else return Objects.equals(m.by[0], this.by[0]);
-            } catch (RuntimeException e) {
-                return false;
-            }
+        if (o instanceof Dual) {
+            Dual m = (Dual) o;
+            return Objects.equals(m.alpha, this.alpha) &&
+                    Objects.equals(m.beta, this.beta);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "Mixture{" +
-                "by=" + Arrays.toString(by) +
+        return "Dual{" +
+                ", alpha=" + alpha +
+                ", beta=" + beta +
                 '}';
     }
 }

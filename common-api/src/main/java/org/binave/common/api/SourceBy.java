@@ -25,6 +25,6 @@ package org.binave.common.api;
  */
 public interface SourceBy<By, Target> {
 
-    Target create(Mixture<By> mixture);
+    Target create(By by);
 
 }
