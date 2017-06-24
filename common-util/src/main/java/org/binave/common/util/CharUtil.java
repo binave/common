@@ -313,25 +313,71 @@ public class CharUtil {
     }
 
     /**
-     * 对字符串进行默认切割
+     * 对字符串进行
      *
      * @param str   [,;|]
      */
-    public static List<String> splitString(String str) {
+    public static List<String> splitString(String str, char... separators) {
         if (str == null || str.length() == 0)
             return new ArrayList<>(0);
+        if (separators == null) throw new IllegalArgumentException("separators is null");
+
         List<String> list = new ArrayList<>();
 
         int p = 0;
         int i = 0;
 
-        for (; i < str.length(); i++) {
-            int c = str.charAt(i);
-            if (c == ',' || c == ';' || c == '|') {
-                if (i - p > 0) list.add(str.substring(p, i));
-                p = i + 1;
-            }
+        switch (separators.length) {
+            case 1:
+                for (; i < str.length(); i++) {
+                    int c = str.charAt(i);
+                    if (c == separators[0]) {
+                        if (i - p > 0) list.add(str.substring(p, i));
+                        p = i + 1;
+                    }
+                }
+                break;
+            case 2:
+                for (; i < str.length(); i++) {
+                    int c = str.charAt(i);
+                    if (c == separators[0] || c == separators[1]) {
+                        if (i - p > 0) list.add(str.substring(p, i));
+                        p = i + 1;
+                    }
+                }
+                break;
+            case 3:
+                for (; i < str.length(); i++) {
+                    int c = str.charAt(i);
+                    if (c == separators[0] || c == separators[1] || c == separators[2]) {
+                        if (i - p > 0) list.add(str.substring(p, i));
+                        p = i + 1;
+                    }
+                }
+                break;
+            case 4:
+                for (; i < str.length(); i++) {
+                    int c = str.charAt(i);
+                    if (c == separators[0] || c == separators[1] || c == separators[2] || c == separators[3]) {
+                        if (i - p > 0) list.add(str.substring(p, i));
+                        p = i + 1;
+                    }
+                }
+                break;
+            case 5:
+                for (; i < str.length(); i++) {
+                    int c = str.charAt(i);
+                    if (c == separators[0] || c == separators[1] ||
+                            c == separators[2] || c == separators[3] || c == separators[4]) {
+                        if (i - p > 0) list.add(str.substring(p, i));
+                        p = i + 1;
+                    }
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException(String.valueOf(separators.length));
         }
+
         if (i - p > 0) list.add(str.substring(p, i));
         return list;
     }

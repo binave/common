@@ -58,7 +58,7 @@ public class EnvLoader {
         for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
             map.put(
                     entry.getKey(),
-                    CharUtil.splitString(entry.getValue())
+                    CharUtil.splitString(entry.getValue(), ',', ';', '|')
             );
         }
         return map;
@@ -83,7 +83,7 @@ public class EnvLoader {
         for (Map.Entry entry : pp.entrySet()) {
             map.put(
                     String.valueOf(entry.getKey()),
-                    CharUtil.splitString(String.valueOf(entry.getValue()))
+                    CharUtil.splitString(String.valueOf(entry.getValue()), ',', ';', '|')
             );
         }
         return map;
@@ -95,7 +95,7 @@ public class EnvLoader {
      *
      * @param fileName 配置文件名称
      */
-    private static Properties loadProperties(String fileName) {
+    public static Properties loadProperties(String fileName) {
         if (fileName == null) throw new IllegalArgumentException("item is empty");
         Properties properties = new Properties();
         try (InputStream is = Thread.currentThread()
