@@ -20,13 +20,28 @@ package org.binave.common.api;
  * 同步代理
  * 用于一致性更替
  *
+ * 实现时，需要同时实现、继承 {@link E}
+ *
  * @author bin jin
  * @since 1.8
  */
 public interface SyncProxy<E> {
 
+    /**
+     * 替换被代理对象
+     */
     void syncUpdate(E e);
 
+    /**
+     * 测试被代理对象是否为 null
+     */
     boolean isNull();
+
+    /**
+     * 获得实现类本身
+     */
+    default E getProxy() {
+        return (E) this;
+    }
 
 }
