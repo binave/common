@@ -206,10 +206,10 @@ public class TypeUtil {
     }
 
     /**
-     * 获得目标理性的泛型
+     * 获得目标的泛型
      */
-    public static Type[] getGenericTypes(Class type) {
-        return getGenericTypes((ParameterizedType) type.getGenericSuperclass());
+    public static Type[] getGenericTypes(Type type) {
+        return getGenericTypes((ParameterizedType) type);
     }
 
     private static Type[] getGenericTypes(ParameterizedType pt) {
