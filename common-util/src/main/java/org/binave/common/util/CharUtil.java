@@ -227,6 +227,10 @@ public class CharUtil {
         }
     }
 
+    public static String join(String separator, Collection c) {
+        return join(separator, null, c, null);
+    }
+
     public static String join(String separator, String prefix, Collection c, String suffix) {
         if (c == null || c.size() == 0)
             return null;
