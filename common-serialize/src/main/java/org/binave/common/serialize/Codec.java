@@ -31,13 +31,18 @@ public interface Codec {
 
     /**
      * 序列化
+     *
+     * @param pojo 对象实例
      */
     <POJO> byte[] encode(POJO pojo);
 
     /**
      * 反序列化
+     *
+     * @param type      目标类型
+     * @param generics  泛型类型
      */
-    <POJO> POJO decode(byte[] bytes, Class<POJO> type);
+    <POJO> POJO decode(byte[] bytes, Class<POJO> type, Class<?>... generics);
 
     /**
      * 对象复制

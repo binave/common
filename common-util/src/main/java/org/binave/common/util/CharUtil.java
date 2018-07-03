@@ -19,8 +19,7 @@ package org.binave.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 /**
  * 一些字符处理的工具

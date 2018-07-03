@@ -406,21 +406,11 @@ public enum FutureTime {
     }
 
     /**
-     * 对每个线程缓存对应的 Calendar
-     */
-    private static ThreadLocal<Calendar> calendarCache = new ThreadLocal<>();
-
-    /**
      * 请使用线程池。
      * todo 注意：如果使用协程，则不可以使用此方式。请使用协程支持的方式
      */
     private static Calendar getCalendar(long milliSeconds) {
-
-        Calendar calendar = calendarCache.get();
-        if (calendar == null) {
-            calendar = Calendar.getInstance();
-            calendarCache.set(calendar);
-        }
+        Calendar calendar = Calendar.getInstance();
         // 设置时间
         calendar.setTimeInMillis(milliSeconds);
         return calendar;

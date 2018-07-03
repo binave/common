@@ -21,10 +21,16 @@ import jdk.internal.org.objectweb.asm.ClassVisitor;
 import jdk.internal.org.objectweb.asm.MethodVisitor;
 import jdk.internal.org.objectweb.asm.Opcodes;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * 对 class 的一些处理
@@ -46,11 +52,9 @@ public class TypeUtil {
      * @param annotation 注解
      * @param contain true ? 找带目标注解的属性 : 跳过带目标注解的属性
      */
-    public static Map<String, Field> getFieldMap(Class<?> clazz, Class annotation, boolean contain) {
+    public static Map<String, Field> getFieldMap(Class<?> clazz, Class<? extends Annotation> annotation, boolean contain) {
 
         if (clazz == null) throw new IllegalArgumentException("empty conf");
-        if (annotation != null && !annotation.isAnnotation())
-            throw new IllegalArgumentException(annotation.getName() + " not annotation");
 
         Map<String, Field> fieldMap = new TreeMap<>();
         getFieldMap(fieldMap, clazz, annotation, contain);
@@ -61,7 +65,7 @@ public class TypeUtil {
     /**
      * 递归查找属性
      */
-    private static void getFieldMap(Map<String, Field> fieldMap, Class<?> clazz, Class annotation, boolean contain) {
+    private static void getFieldMap(Map<String, Field> fieldMap, Class<?> clazz, Class<? extends Annotation> annotation, boolean contain) {
 
         // 获得所有属性，但不包括继承的公有属性
         Field[] fields = clazz.getDeclaredFields();
@@ -280,5 +284,103 @@ public class TypeUtil {
             this.name = name;
         }
     }
+
+    /**
+     * 返回一个目录下的所有资源
+     */
+    public static List<String> listSources(String absolutePath) {
+        ClassLoader loader = ClassLoader.getSystemClassLoader();
+
+        Enumeration<URL> dirs;
+        try {
+            dirs = loader.getResources(absolutePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        // 当前路径
+        URL pwdUrl = loader.getResource(".");
+
+        List<String> list = new ArrayList<>();
+        while (dirs.hasMoreElements()) {
+            URL url = dirs.nextElement();
+            String protocol = url.getProtocol(); // 得到协议的名称
+
+            // 如果是以文件的形式保存在服务器上
+            if ("file".equals(protocol)) {
+                // 以文件的方式扫描整个包下的文件 并添加到集合中
+                findInDir(list, url.getFile());
+
+            } else if ("jar".equals(protocol)) {
+                // jar 包内容
+                findInJar(list, url, absolutePath);
+            }
+        }
+
+        // 可以获得当前路径
+        if (pwdUrl != null) {
+            List<String> newList = new ArrayList<>();
+            for (String resource : list) {
+                newList.add(
+                        resource.startsWith(pwdUrl.getPath())
+                                ? resource.substring(pwdUrl.getPath().length())
+                                : resource
+                );
+            }
+            list = newList;
+        }
+        return list;
+    }
+
+
+    /**
+     * 获得 jar 文件
+     *
+     */
+    private static void findInJar(List<String> list, URL url, String path) {
+        JarFile jar;
+
+        try {
+            jar = ((JarURLConnection) url.openConnection()).getJarFile();
+        } catch (IOException e) {
+            // 在扫描用户定义视图时从jar包获取文件出错
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        Enumeration<JarEntry> entries = jar.entries();
+        // 同样的进行循环迭代
+        while (entries.hasMoreElements()) {
+            // 获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
+            String name = entries.nextElement().getName();
+
+            // 如果是以'/'开头的，获取后面的字符串
+            if (name.charAt(0) == '/') name = name.substring(1);
+            if (name.startsWith(path) && '/' != name.charAt(name.length() - 1)) {
+                // 显示文件，如果以 '/' 结尾，是一个包，跳过
+                list.add(name);
+            }
+        }
+    }
+
+
+    /**
+     * 以文件的形式来获取包下的所有文件
+     * 包含递归
+     */
+    private static void findInDir(List<String> list, String path) {
+        File dir = new File(path);
+        // 如果不存在或者 也不是目录就直接返回
+        if (!dir.exists()) return;
+        if (dir.isDirectory()) {
+            for (File file : dir.listFiles()) {
+                // 如果是目录 则继续扫描
+                if (file.isDirectory()) {
+                    findInDir(list, path + '/' + file.getName());
+                } else list.add(path + '/' + file.getName());
+            }
+        } else list.add(path + '/' + dir.getName());
+    }
+
 
 }
