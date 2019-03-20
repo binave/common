@@ -42,8 +42,8 @@ public class CharUtil {
      * @param format                    带占位符的格式化字符
      */
     public static String resolvePlaceholders(/*boolean allowPlaceholderTextSurplus,*/
-                                             boolean allowParametersSurplus, boolean allowPlaceholderSurplus,
-                                             String prefixSeparator, String suffixSeparator, String format, Object... args) {
+            boolean allowParametersSurplus, boolean allowPlaceholderSurplus,
+            String prefixSeparator, String suffixSeparator, String format, Object... args) {
 
         if (prefixSeparator == null || suffixSeparator == null || format == null || args == null)
             throw new IllegalArgumentException(
@@ -383,6 +383,87 @@ public class CharUtil {
 
         if (i - p > 0) list.add(str.substring(p, i));
         return list;
+    }
+
+    /**
+     * get longest common sub sequence
+     * 取得两个字符串的最大公共子串
+     *
+     * * 时间复杂度相当，但无需数组，空间占用固定，不会随着字符串不同而变化
+     *
+     * 12345678      6 - 7   * 12345     3 - 4
+     *       abcd    0 - 1   *    abcde  0 - 1
+
+     * 12345678      5 - 7   * 12345     2 - 4
+     *      abcd     0 - 2   *   abcde   0 - 2
+
+     * 12345678      4 - 7   * 12345     1 - 4
+     *     abcd      0 - 3   *  abcde    0 - 3
+
+     * 12345678      3 - 6   * 12345     0 - 4
+     *    abcd       0 - 3   * abcde     0 - 4
+
+     * 12345678      2 - 5   *  12345    0 - 3
+     *   abcd        0 - 3   * abcde     1 - 4
+
+     * 12345678      1 - 4   *   12345   0 - 2
+     *  abcd         0 - 3   * abcde     2 - 4
+
+     * 12345678      0 - 3   *    12345  0 - 1
+     * abcd          0 - 3   * abcde     3 - 4
+
+     *  12345678     0 - 2
+     * abcd          1 - 3
+
+     *   12345678    0 - 1
+     * abcd          2 - 3
+
+     * @return 公共子串
+     */
+    public static String lcs(String str1, String str2) {
+        int m, n, y = 0, len = 0, pre = 0, sub, count;
+        boolean stat = false;
+
+        // 执行如上图的错位移动
+        for (int x = str1.length() - 2; x >= -1 * str2.length() + 2; x--) {
+            if (x >= 0) {
+                m = x;
+                n = 0;
+            } else {
+                m = 0;
+                n = x * -1;
+            }
+
+            // 右下标
+            if (y < str2.length() - 1) ++y;
+
+            // 进行重合部分的比较
+            sub = m;
+            count = 0;
+            for (int i = 0; i <= y - n; i++) {
+                if (str1.charAt(m + i) == str2.charAt(n + i)) {
+                    if (!stat) {
+                        sub = m + i; // 记录连续字符串起点未知
+                        count = 0;   // 初始化公共子串长度计数
+                        stat = true;
+                    }
+                    ++count;
+                } else {
+                    stat = false;
+                    if (count > len) { // 比原来的更长
+                        pre = sub;     // 记录起点
+                        len = count;
+                    }
+                }
+            }
+            // 处理末尾字符
+            if (count > len) {
+                pre = sub;
+                len = count;
+            }
+
+        }
+        return str1.substring(pre, pre + len);
     }
 
     /**
