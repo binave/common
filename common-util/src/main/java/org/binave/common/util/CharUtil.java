@@ -316,7 +316,7 @@ public class CharUtil {
     }
 
     /**
-     * 对字符串进行
+     * 对字符串进行切分
      *
      * @param str   [,;|]
      */
@@ -391,6 +391,9 @@ public class CharUtil {
      *
      * * 时间复杂度相当，但无需数组，空间占用固定，不会随着字符串不同而变化
      *
+     * 12345678      7 - 7   * 12345     4 - 4
+     *        abcd   0 - 0   *     abcde 0 - 0
+
      * 12345678      6 - 7   * 12345     3 - 4
      *       abcd    0 - 1   *    abcde  0 - 1
 
@@ -412,20 +415,30 @@ public class CharUtil {
      * 12345678      0 - 3   *    12345  0 - 1
      * abcd          0 - 3   * abcde     3 - 4
 
-     *  12345678     0 - 2
-     * abcd          1 - 3
+     #  12345678     0 - 2   #     12345 0 - 0
+     # abcd          1 - 3   # abcde     4 - 4
 
      *   12345678    0 - 1
      * abcd          2 - 3
 
-     * @return 公共子串
+     *    12345678   0 - 0
+     * abcd          3 - 3
+
+     * @return 公共子串，拥有多个长度相同的，则只返回第一个匹配的，没有则返回 null
      */
     public static String lcs(String str1, String str2) {
-        int m, n, y = 0, len = 0, pre = 0, sub, count;
+
+        if (str1 == null || str2 == null)
+            throw new IllegalArgumentException();
+
+        int str1Len = str1.length(), str2Len = str2.length();
+        if (str1Len == 0 || str2Len == 0) return null;
+
         boolean stat = false;
+        int m, n, y = 0, len = 0, pre = 0, sub, count;
 
         // 执行如上图的错位移动
-        for (int x = str1.length() - 2; x >= -1 * str2.length() + 2; x--) {
+        for (int x = str1Len - 1; x >= -1 * str2Len + 1; x--) {
             if (x >= 0) {
                 m = x;
                 n = 0;
@@ -435,12 +448,12 @@ public class CharUtil {
             }
 
             // 右下标
-            if (y < str2.length() - 1) ++y;
+            if (y < str2Len) ++y;
 
             // 进行重合部分的比较
             sub = m;
             count = 0;
-            for (int i = 0; i <= y - n; i++) {
+            for (int i = 0; i < y - n; i++) {
                 if (str1.charAt(m + i) == str2.charAt(n + i)) {
                     if (!stat) {
                         sub = m + i; // 记录连续字符串起点未知
@@ -463,7 +476,7 @@ public class CharUtil {
             }
 
         }
-        return str1.substring(pre, pre + len);
+        return len == 0 ? null : str1.substring(pre, pre + len);
     }
 
     /**
