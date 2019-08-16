@@ -26,15 +26,15 @@ package com.twitter.service.snowflake;
  *      注意，41位时间截不是存储当前时间的时间截，而是存储时间截的差值（当前时间截 - 开始时间截)得到的值，
  *      41 位的时间截，可以使用69年，年T = (1L << 41) / (1000L * 60 * 60 * 24 * 365) = 69
  *
- * 10 位的数据机器位，可以部署在 1024 个节点，包括 5 位 dataCenterId 和 5 位 workerId
+ * 10 位的实例位，可以部署在 1024 个节点，包括 5 位 dataCenterId 和 5 位 workerId
  *
  * 12 位序列，毫秒内的计数。
- *      12 位的计数顺序号支持每个节点每毫秒(同一机器，同一时间截)产生 4096 个 ID 序号
+ *      12 位的计数顺序号支持每个节点每毫秒(同一实例，同一时间截)产生 4096 个 ID 序号
  *
  * 加起来刚好64位，为一个Long型。
  *
  * SnowFlake的优点是：
- *      整体上按照时间自增排序，并且整个分布式系统内不会产生ID碰撞(由数据中心ID和机器ID作区分)，
+ *      整体上按照时间自增排序，并且整个分布式系统内不会产生ID碰撞(由数据中心ID和实例ID作区分)，
  *      并且效率较高，经测试，SnowFlake每秒能够产生26万ID左右。
  */
 public class IdWorker {
@@ -64,7 +64,7 @@ public class IdWorker {
 
 
     /**
-     * @param workerId      机器 ID (0~31)
+     * @param workerId      实例 ID (0~31)
      * @param dataCenterId  数据中心 ID (0~31)
      */
     public IdWorker(long workerId, long dataCenterId) {
