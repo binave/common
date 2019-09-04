@@ -639,8 +639,10 @@ public class CharUtil {
 
     /**
      * 将字符中的变量替换为对应环境变量的值
-     *
      * 也可以在启动参数中增加配置 ' -D{key}={value}'
+     *
+     * 为了兼容 linux 环境变量的命名方式，环境变量 {key} 仅允许使用字母数字下划线，并且首字符不可以是数字。
+     * 此处不支持单个字符的环境变量名。
      */
     public static String envReplaceFilter(String src) {
         Matcher matcher = Pattern.compile(ENV_KEY_MATCH).matcher(src);
