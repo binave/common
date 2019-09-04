@@ -648,14 +648,11 @@ public class CharUtil {
         Matcher matcher = Pattern.compile(ENV_KEY_MATCH).matcher(src);
         while (matcher.find()) {
             String key = matcher.group();
-            String value = System.getenv(key);
+            String value = System.getProperty(key, System.getenv(key));
             if (value == null) {
-                value = System.getProperty(key);
-                if (value == null) {
-                    throw new IllegalArgumentException(
-                            String.format("${%s} not found in environment variable.", key)
-                    );
-                }
+                throw new IllegalArgumentException(
+                        String.format("${%s} not found in environment variable.", key)
+                );
             }
             src = src.replaceAll(
                     "\\$\\{" + key + "}",
