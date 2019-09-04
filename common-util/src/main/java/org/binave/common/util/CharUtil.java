@@ -395,37 +395,27 @@ public class CharUtil {
      *
      * 12345678      7 - 7   * 12345     4 - 4
      *        abcd   0 - 0   *     abcde 0 - 0
-
      * 12345678      6 - 7   * 12345     3 - 4
      *       abcd    0 - 1   *    abcde  0 - 1
-
      * 12345678      5 - 7   * 12345     2 - 4
      *      abcd     0 - 2   *   abcde   0 - 2
-
      * 12345678      4 - 7   * 12345     1 - 4
      *     abcd      0 - 3   *  abcde    0 - 3
-
      * 12345678      3 - 6   * 12345     0 - 4
      *    abcd       0 - 3   * abcde     0 - 4
-
      * 12345678      2 - 5   *  12345    0 - 3
      *   abcd        0 - 3   * abcde     1 - 4
-
      * 12345678      1 - 4   *   12345   0 - 2
      *  abcd         0 - 3   * abcde     2 - 4
-
      * 12345678      0 - 3   *    12345  0 - 1
      * abcd          0 - 3   * abcde     3 - 4
 
      #  12345678     0 - 2   #     12345 0 - 0
      # abcd          1 - 3   # abcde     4 - 4
-
      *   12345678    0 - 1
      * abcd          2 - 3
-
      *    12345678   0 - 0
      * abcd          3 - 3
-
      * @return 公共子串，拥有多个长度相同的，则只返回第一个匹配的，没有则返回 null
      */
     public static String lcs(String str1, String str2) {
@@ -649,6 +639,8 @@ public class CharUtil {
 
     /**
      * 将字符中的变量替换为对应环境变量的值
+     *
+     * 也可以在启动参数中增加配置 ' -D{key}={value}'
      */
     public static String envReplaceFilter(String src) {
         Matcher matcher = Pattern.compile(ENV_KEY_MATCH).matcher(src);
@@ -656,9 +648,12 @@ public class CharUtil {
             String key = matcher.group();
             String value = System.getenv(key);
             if (value == null) {
-                throw new IllegalArgumentException(
-                        String.format("${%s} not found in environment variable.", key)
-                );
+                value = System.getProperty(key);
+                if (value == null) {
+                    throw new IllegalArgumentException(
+                            String.format("${%s} not found in environment variable.", key)
+                    );
+                }
             }
             src = src.replaceAll(
                     "\\$\\{" + key + "}",
