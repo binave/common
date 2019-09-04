@@ -19,6 +19,8 @@ package org.binave.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -641,6 +643,29 @@ public class CharUtil {
      */
     public static byte[] toBytes(Object source) {
         return String.valueOf(source).getBytes(Charset.forName("UTF-8"));
+    }
+
+    private static final String ENV_KEY_MATCH = "(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})";
+
+    /**
+     * 将字符中的变量替换为对应环境变量的值
+     */
+    public static String envReplaceFilter(String src) {
+        Matcher matcher = Pattern.compile(ENV_KEY_MATCH).matcher(src);
+        while (matcher.find()) {
+            String key = matcher.group();
+            String value = System.getenv(key);
+            if (value == null) {
+                throw new IllegalArgumentException(
+                        String.format("${%s} not found in environment variable.", key)
+                );
+            }
+            src = src.replaceAll(
+                    "\\$\\{" + key + "}",
+                    value.replaceAll("\\\\", "\\\\\\\\")
+            );
+        }
+        return src;
     }
 
 }
