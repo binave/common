@@ -18,10 +18,7 @@ package org.binave.common.util;
 
 //import javax.servlet.ServletContext;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -49,6 +46,32 @@ public class EnvLoader {
 //        }
 //        return map;
 //    }
+
+    /**
+     * 获得项目所在路径，用于读取配置文件
+     *
+     * 因为不会变，所以可以保存下来使用
+     */
+    public static String getLocalPath() {
+        String[] classPath = System.getProperty("java.class.path").
+                split("" + File.pathSeparatorChar);
+
+        if (classPath.length > 1) {
+            for (String path : classPath) {
+                // 返回第一个
+                if (!path.endsWith("jar")) {
+                    return path;
+                }
+            }
+        } else {
+            return new File(classPath[0]).
+                    getAbsolutePath(). // 绝对路径
+                    replaceFirst("[\\\\]{2}", "\\\\"). // 在 windows 下，有一种情况会导致形如 'C:\\Windows\System32'
+                    replaceFirst("[\\\\/][^\\\\/]+\\.jar", ""); // 去掉最后一个路径分隔符及后面的内容。
+        }
+
+        throw new IllegalArgumentException("local path not found.");
+    }
 
     /**
      * 从环境变量中获得配置
