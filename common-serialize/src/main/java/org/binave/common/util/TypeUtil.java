@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 /**
  * 对 class 的一些处理
@@ -309,11 +310,11 @@ public class TypeUtil {
             // 如果是以文件的形式保存在服务器上
             if ("file".equals(protocol)) {
                 // 以文件的方式扫描整个包下的文件 并添加到集合中
-                findInDir(list, url.getFile());
+                allInDir(list, 65536, url.getFile(), null);
 
             } else if ("jar".equals(protocol)) {
                 // jar 包内容
-                findInJar(list, url, absolutePath);
+                allInJar(list, url, absolutePath);
             }
         }
 
@@ -335,52 +336,57 @@ public class TypeUtil {
 
     /**
      * 获得 jar 文件
-     *
      */
-    private static void findInJar(List<String> list, URL url, String path) {
+    private static void allInJar(Collection<String> collection, URL url, String prefix) {
         JarFile jar;
-
         try {
             jar = ((JarURLConnection) url.openConnection()).getJarFile();
         } catch (IOException e) {
-            // 在扫描用户定义视图时从jar包获取文件出错
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // 在扫描用户定义视图时从jar包获取文件出错
         }
 
         Enumeration<JarEntry> entries = jar.entries();
-        // 同样的进行循环迭代
-        while (entries.hasMoreElements()) {
-            // 获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
+        while (entries.hasMoreElements()) { // 同样的进行循环迭代。获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
             String name = entries.nextElement().getName();
-
-            // 如果是以'/'开头的，获取后面的字符串
-            if (name.charAt(0) == '/') name = name.substring(1);
-            if (name.startsWith(path) && '/' != name.charAt(name.length() - 1)) {
-                // 显示文件，如果以 '/' 结尾，是一个包，跳过
-                list.add(name);
+            if (name.charAt(0) == '/') name = name.substring(1); // 如果是以'/'开头的，获取后面的字符串
+            if (name.startsWith(prefix) && '/' != name.charAt(name.length() - 1)) {
+                collection.add(name); // 显示文件，如果以 '/' 结尾，是一个包，跳过
             }
         }
     }
 
-
     /**
-     * 以文件的形式来获取包下的所有文件
-     * 包含递归
+     * 递归获得所有文件
+     *
+     * @param collection  添加用的集合
+     * @param maxDepth    最大递归深度
+     * @param path        递归目标路径
+     * @param filterRegex 名称过滤正则表达式
      */
-    private static void findInDir(List<String> list, String path) {
-        File dir = new File(path);
-        // 如果不存在或者 也不是目录就直接返回
-        if (!dir.exists()) return;
-        if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                // 如果是目录 则继续扫描
-                if (file.isDirectory()) {
-                    findInDir(list, path + '/' + file.getName());
-                } else list.add(path + '/' + file.getName());
-            }
-        } else list.add(path + '/' + dir.getName());
-    }
+    public static void allInDir(Collection<String> collection, int maxDepth, String path, String filterRegex) {
+        if (maxDepth <= 0) {
+            return; // 深度
+        }
 
+        File fileOrDir = new File(path);
+        if (!fileOrDir.exists()) {
+            return; // 文件不存在
+        }
+
+        if (fileOrDir.isDirectory()) { // 文件夹
+            File[] fileList = fileOrDir.listFiles();
+            if (fileList != null) {
+                for (File file : fileList) {
+                    if (file.isDirectory()) {
+                        allInDir(collection, maxDepth - 1, path + File.separator + file.getName(), filterRegex);
+                    } else if (filterRegex == null || Pattern.matches(filterRegex, file.getName())) {
+                        collection.add(path + File.separator + file.getName());
+                    }
+                }
+            }
+        } else if (filterRegex == null || Pattern.matches(filterRegex, fileOrDir.getName())) {
+            collection.add(path + File.separator + fileOrDir.getName());
+        }
+    }
 
 }
