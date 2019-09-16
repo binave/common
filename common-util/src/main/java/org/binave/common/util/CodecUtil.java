@@ -40,67 +40,24 @@ public class CodecUtil {
 
     public enum Hash {
         MD5 {
-            /**
-             * Copyright (C) 2008 Happy Fish / YuQing
-             *
-             * FastDFS Java Client may be copied only under the terms of the GNU Lesser
-             * General Public License (LGPL).
-             * Please visit the FastDFS Home Page http://www.csource.org/ for more detail.
-             *
-             * md5 function
-             *
-             * @param src the input buffer
-             * @return md5 string
-             **/
             @Override
             public String hash(byte[] src) {
-                byte digest[] = cloneDigest(md5sum).digest(src);
-                char str[] = new char[32];
-                int k = 0;
-                for (int i = 0; i < 16; i++) {
-                    str[k++] = hexDigits[digest[i] >>> 4 & 0xf];
-                    str[k++] = hexDigits[digest[i] & 0xf];
-                }
-                return new String(str);
+                return hash(src, "MD5");
             }
 
-            @Override
-            public String hash(String str) {
-                return hash(CharUtil.toBytes(str));
-            }
         },
 
         SHA1 {
             @Override
             public String hash(byte[] src) {
-                // todo
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String hash(String str) {
-                return hash(CharUtil.toBytes(str));
+                return hash(src, "SHA-1");
             }
         },
 
         SHA256 {
             @Override
             public String hash(byte[] src) {
-                byte[] hash = cloneDigest(sha256sum).digest(src);
-                StringBuilder hexString = new StringBuilder();
-
-                for (byte h : hash) {
-                    String hex = Integer.toHexString(0xff & h);
-                    if (hex.length() == 1) hexString.append('0');
-                    hexString.append(hex);
-                }
-
-                return hexString.toString();
-            }
-
-            @Override
-            public String hash(String str) {
-                return hash(CharUtil.toBytes(str));
+                return hash(src, "SHA-256");
             }
         };
 
@@ -112,31 +69,52 @@ public class CodecUtil {
         /**
          * 计算字符的 hash
          */
-        abstract public String hash(String str);
+        public String hash(String str) {
+            return hash(CharUtil.toBytes(str));
+        }
 
-        private static final char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+//        private static final char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-        private final static MessageDigest md5sum = getDigest("MD5");
-        private final static MessageDigest sha256sum = getDigest("SHA-256");
+//        private final static MessageDigest md5sum = getDigest("MD5");
+//        private final static MessageDigest sha256sum = getDigest("SHA-256");
 
-        private static MessageDigest getDigest(String algorithm) {
+        static String hash(byte[] src, String algorithm) {
             try {
-                return MessageDigest.getInstance(algorithm);
+                MessageDigest digest = MessageDigest.getInstance(algorithm);
+                return convertHexStr(digest.digest(src));
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        /**
-         * 支持多线程
-         */
-        private static MessageDigest cloneDigest(MessageDigest digest) {
-            try {
-                return (MessageDigest) digest.clone(); // 使用 clone 加快对象复制
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
+        public static String convertHexStr(byte[] hash) {
+            StringBuilder hexString = new StringBuilder();
+            for (byte h : hash) {
+                String hex = Integer.toHexString(0xff & h);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
             }
+            return hexString.toString();
         }
+//
+//        private static MessageDigest getDigest(String algorithm) {
+//            try {
+//                return MessageDigest.getInstance(algorithm);
+//            } catch (NoSuchAlgorithmException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+
+//        /**
+//         * 支持多线程
+//         */
+//        private static MessageDigest cloneDigest(MessageDigest digest) {
+//            try {
+//                return (MessageDigest) digest.clone(); // 使用 clone 加快对象复制
+//            } catch (CloneNotSupportedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
     }
 
     public enum ConsistentHash {
