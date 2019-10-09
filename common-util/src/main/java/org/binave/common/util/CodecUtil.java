@@ -16,11 +16,15 @@
 
 package org.binave.common.util;
 
+import com.google.android.apps.authenticator.otp.PasscodeGenerator;
+import com.google.android.apps.authenticator.util.Base32String;
+import org.binave.common.otp.TemporalPasscodeGenerator;
+
+import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
@@ -311,6 +315,57 @@ public class CodecUtil {
         byte[] salt = new byte[8];
         random.nextBytes(salt);
         return salt;
+    }
+
+
+    /**
+     * like google-authenticator app,
+     * 通过字符串种子和时间，获得固定的数字密码
+     *
+     * @param seed 字符种子
+     */
+    public static TemporalPasscodeGenerator generateTemporalPasscodeGenerator(String seed) {
+        return generateTemporalPasscodeGenerator(seed, 6);
+    }
+
+    /**
+     *
+     * @param seed 字符种子
+     * @param len 1 ~ 9
+     */
+    public static TemporalPasscodeGenerator generateTemporalPasscodeGenerator(String seed, int len) {
+        Mac mac;
+        try {
+            mac = Mac.getInstance("HMACSHA1");
+            mac.init(new SecretKeySpec(
+                    Base32String.decode(seed),
+                    ""
+            ));
+        } catch (InvalidKeyException | Base32String.DecodingException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new TemporalPasscodeGenerator() {
+            private PasscodeGenerator generator = new PasscodeGenerator(mac, len);
+
+            @Override
+            public String generateCode(long state) {
+                try {
+                    return generator.generateResponseCode(state);
+                } catch (GeneralSecurityException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public boolean verifyCode(long state, String code) {
+                try {
+                    return generator.verifyResponseCode(state, code);
+                } catch (GeneralSecurityException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
 }

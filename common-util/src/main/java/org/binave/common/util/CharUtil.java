@@ -18,6 +18,7 @@ package org.binave.common.util;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -632,7 +633,7 @@ public class CharUtil {
      * 打印对象 {@link #toString()} 方法的 byte[]
      */
     public static byte[] toBytes(Object source) {
-        return String.valueOf(source).getBytes(Charset.forName("UTF-8"));
+        return String.valueOf(source).getBytes(StandardCharsets.UTF_8);
     }
 
     private static final String ENV_KEY_MATCH = "(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})";
