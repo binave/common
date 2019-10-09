@@ -16,7 +16,7 @@ license text.
 引用
 
 |Url|license|说明|
-|-------------|-------------|-------------|
+|---|---|---|
 |[google/flatbuffers](https://github.com/google/flatbuffers)|[LICENSE](https://github.com/google/flatbuffers/blob/master/LICENSE.txt)|java code|
 |[google/guava](https://github.com/google/guava)|[LICENSE](https://github.com/google/guava/blob/master/COPYING)|部分接口|
 |[google/authenticator-android](https://github.com/google/google-authenticator-android)|[LICENSE](https://github.com/google/google-authenticator-android/blob/master/LICENSE)|PasscodeGenerator 类|
