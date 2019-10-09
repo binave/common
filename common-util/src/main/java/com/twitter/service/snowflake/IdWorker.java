@@ -1,6 +1,4 @@
-package com.twitter.service.snowflake;
-
-/**
+/*
  * Copyright 2010 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
@@ -13,7 +11,11 @@ package com.twitter.service.snowflake;
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  * https://github.com/twitter-archive/snowflake
- *
+ */
+
+package com.twitter.service.snowflake;
+
+/**
  * 雪花算法
  * https://github.com/twitter-archive/snowflake/blob/scala_28/src/main/scala/com/twitter/service/snowflake/IdWorker.scala
  *
