@@ -17,3 +17,4 @@ license text.
     * flatbuffers [https://github.com/google/flatbuffers](https://github.com/google/flatbuffers) java 部分
         * [flatbuffers / LICENSE](https://github.com/google/flatbuffers/blob/master/LICENSE.txt)
     * guava [https://github.com/google/guava](https://github.com/google/guava) 部分接口
+    * authenticator [google-authenticator-android](https://github.com/google/google-authenticator-android)
