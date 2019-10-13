@@ -162,8 +162,6 @@ public class CharUtil {
         return replacePlaceholders(false, false, separator, format, args);
     }
 
-    private static final String DEFAULT_SEPARATOR = "{}";
-
     /**
      * 将字符串中的 {} 替换成参数
      *
@@ -173,7 +171,7 @@ public class CharUtil {
      * @param args      {@link Object#toString()}
      */
     public static String format(String format, Object... args) {
-        return replacePlaceholders(false, true, DEFAULT_SEPARATOR, format, args);
+        return replacePlaceholders(false, true, "{}", format, args);
     }
 
     /**
@@ -636,8 +634,6 @@ public class CharUtil {
         return String.valueOf(source).getBytes(StandardCharsets.UTF_8);
     }
 
-    private static final String ENV_KEY_MATCH = "(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})";
-
     /**
      * 将字符中的变量替换为对应环境变量的值
      * 也可以在启动参数中增加配置 ' -D{key}={value}'
@@ -646,7 +642,7 @@ public class CharUtil {
      * 此处不支持单个字符的环境变量名。
      */
     public static String envReplaceFilter(String src) {
-        Matcher matcher = Pattern.compile(ENV_KEY_MATCH).matcher(src);
+        Matcher matcher = Pattern.compile("(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})").matcher(src);
         while (matcher.find()) {
             String key = matcher.group();
             String value = System.getProperty(key, System.getenv(key));
