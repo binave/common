@@ -20,6 +20,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -581,6 +582,20 @@ public class CharUtil {
     }
 
     /* ******** other ******** */
+
+    public static String randomBase62(int len) {
+        return ThreadLocalRandom.current().
+                ints().
+                limit(len).
+                collect(
+                        StringBuilder::new,
+                        (sb, i) -> {
+                            i = Math.abs(i) % 62;
+                            sb.append((char) (i > 9 ? (i < 36 ? (i + 65 - 10) : (i + 97 - 36)) : (i + 48)));
+                        },
+                        StringBuilder::append
+                ).toString();
+    }
 
     /**
      * 获得 uri 包含的参数列表，相同的 key，会被忽略
