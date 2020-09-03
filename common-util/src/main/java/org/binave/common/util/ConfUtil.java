@@ -39,14 +39,14 @@ public class ConfUtil {
     }
 
     // 检测是否是 map 的序列化字符
-    private static final String matchMap = "[\n\r#\\s]*(\\s+)?!!java\\.util\\.Map[\\s\\S]*";
+    private static final String MAP_REGEX = "\\W*\\s+!!java\\.util\\.Map\\s+[\\s\\S]*";
 
     public static <ver extends Version> Map<Class<ver>, Map<String, ver>> loadConf(String... confContexts) {
         Map<String, String> aliasMap = null;
         Map<Class<ver>, Map<String, ver>> configs = new HashMap<>();
 
         for (String str : confContexts) {
-            if (Pattern.matches(matchMap, str)) {
+            if (Pattern.matches(MAP_REGEX, str)) {
                 aliasMap = new Yaml().load(str);
                 break;
             }
@@ -55,7 +55,7 @@ public class ConfUtil {
         if (aliasMap == null) aliasMap = new HashMap<>(0);
 
         for (String str : confContexts) {
-            if (Pattern.matches(matchMap, str)) continue;
+            if (Pattern.matches(MAP_REGEX, str)) continue;
             Object o = yamlLoad(str, aliasMap);
             if (o instanceof Version) {
                 ver v = (ver) o;
@@ -70,14 +70,14 @@ public class ConfUtil {
     }
 
 
-    private static final String GET_CLASS_NAME_FROM_YAML_REGEX = "(?<=!!)[0-9A-Za-z_.]+";
+    private static final String CLASS_NAME_FROM_YAML_REGEX = "(?<=!!)[0-9A-Za-z_.]+";
 
     /**
      * @param str       用于反序列化的对象
      * @param aliasMap  别名表
      */
     private static <T> T yamlLoad(String str, Map<String, String> aliasMap) {
-        Matcher matcher = Pattern.compile(GET_CLASS_NAME_FROM_YAML_REGEX).matcher(str);
+        Matcher matcher = Pattern.compile(CLASS_NAME_FROM_YAML_REGEX).matcher(str);
         boolean find = false;
         while (matcher.find()) { // 得到字符中的类名称，支持多个替换
             String key = matcher.group();
@@ -103,6 +103,9 @@ public class ConfUtil {
         }
     }
 
+
+    private static final String EXEC_REGEX = "[\\s\\S]*!![A-Za-z0-9_]+[\\s\\S]*[A-Za-z0-9_]+:[\\s\\S]*";
+    private static final String SPLIT_REGEX = "[\n\r]-{3,}[\n\r]";
 
     /**
      * 返回可用于 foreach 的迭代器
@@ -142,10 +145,10 @@ public class ConfUtil {
                         replaceAll("#.*", "#"); // 干掉注释，'.*'遇到换行会停止
 
                 int LFOffset = 0;
-                for (String conf : envReplaceFilter(context).split("[\n\r]-{3,}[\n\r]")) { // 替换变量之后，在后面追加文件名和行数范围
+                for (String conf : envReplaceFilter(context).split(SPLIT_REGEX)) { // 替换变量之后，在后面追加文件名和行数范围
                     int LFCount = CharUtil.getStrCount(conf, "\n") + 2;
 
-                    if (Pattern.matches("[\\s\\S]*!![A-Za-z0-9_]+[\\s\\S]*[A-Za-z0-9_]+:[\\s\\S]*", conf)) { // 去掉注释后，是否剩余可用
+                    if (Pattern.matches(EXEC_REGEX, conf)) { // 去掉注释后，是否剩余可用
                         yamlText.add(String.format(
                                 "%s\n#%s:%s-%s", conf, file.getName(), LFOffset, LFOffset + LFCount
                         ));
@@ -196,6 +199,8 @@ public class ConfUtil {
         }
     }
 
+    private static final String ENV_REGEX = "(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})";
+
     /**
      * 将字符中的变量替换为对应环境变量的值
      * 也可以在启动参数中增加配置 ' -D{key}={value}'
@@ -204,7 +209,7 @@ public class ConfUtil {
      * 此处不支持单个字符的环境变量名。
      */
     public static String envReplaceFilter(String src) {
-        Matcher matcher = Pattern.compile("(?<=\\$\\{)[A-Za-z_][A-Za-z0-9_]+(?=})").matcher(src);
+        Matcher matcher = Pattern.compile(ENV_REGEX).matcher(src);
         while (matcher.find()) {
             String key = matcher.group();
             String value = System.getProperty(key, System.getenv(key));
