@@ -22,6 +22,10 @@ public class ConfUtil {
         return getConf(loadConf(ymlFilePreName), type);
     }
 
+    public static <ver extends Version> ver getConf(String ymlFilePreName, Class<ver> type, String name) {
+        return getConf(loadConf(ymlFilePreName), type, name);
+    }
+
     public static <ver extends Version> ver getConf(Map<Class<ver>, Map<String, ver>> config, Class<ver> type) {
         Map<String, ver> verMap = config.get(type);
         if (verMap == null || verMap.isEmpty()) return null;
