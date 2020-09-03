@@ -563,6 +563,23 @@ public class CharUtil {
         return getInteger(context, numberIndex < 0 ? -1 : 0, numberIndex);
     }
 
+    /**
+     * 搜索一个字符串在另一个字符串中出现的次数
+     * （重复字符串，会按最大数量进行匹配）
+     *
+     * @param src   搜寻源
+     * @param tag   在搜寻源中要寻找的字符串
+     * @return 字符串个数
+     */
+    public static int getStrCount(String src, String tag) {
+        int count = 0, offset = 0;
+        while ((offset = src.indexOf(tag, offset)) >= 0) {
+            ++count;
+            ++offset; // 如果加上 tag 的长度，可以消除重复字符干扰
+        }
+        return count;
+    }
+
     /* ******** other ******** */
 
     /**
