@@ -584,6 +584,10 @@ public class CharUtil {
     /* ******** other ******** */
 
     public static String randomBase62(int len) {
+        if (len < 1) throw new IllegalArgumentException(
+                String.format("length: %d < 1", len)
+        );
+        // new SplittableRandom().
         return ThreadLocalRandom.current().
                 ints().
                 limit(len).
