@@ -56,9 +56,14 @@ public class ConfUtil {
 
         for (String str : confContexts) {
             if (Pattern.matches(matchMap, str)) continue;
-            ver o = yamlLoad(str, aliasMap);
-            if (o == null) continue;
-            configs.computeIfAbsent((Class<ver>) o.getClass(), v -> new HashMap<>()).put(o.getName(), o);
+            Object o = yamlLoad(str, aliasMap);
+            if (o instanceof Version) {
+                ver v = (ver) o;
+                configs.computeIfAbsent((Class<ver>) v.getClass(), map -> new HashMap<>()).put(v.getName(), v);
+            } else System.err.printf(
+                    "Instanceof 'Version' failed: %s",
+                    o == null ? "NULL" : o.getClass()
+            );
         }
 
         return configs;
@@ -71,7 +76,7 @@ public class ConfUtil {
      * @param str       用于反序列化的对象
      * @param aliasMap  别名表
      */
-    private static <ver extends Version> ver yamlLoad(String str, Map<String, String> aliasMap) {
+    private static <T> T yamlLoad(String str, Map<String, String> aliasMap) {
         Matcher matcher = Pattern.compile(GET_CLASS_NAME_FROM_YAML_REGEX).matcher(str);
         boolean find = false;
         while (matcher.find()) { // 得到字符中的类名称，支持多个替换
