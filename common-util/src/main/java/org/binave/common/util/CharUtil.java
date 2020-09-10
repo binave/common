@@ -581,6 +581,15 @@ public class CharUtil {
         return count;
     }
 
+    public static long reverse(long i) {
+        int r = 0;
+        do {
+            r *= 10;
+            r += i % 10;
+        } while ((i /= 10) > 0);
+        return r;
+    }
+
     /* ******** other ******** */
 
     public static String randomBase62(int len) {
