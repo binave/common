@@ -56,7 +56,7 @@ public class ConfUtil {
             }
         }
 
-        if (aliasMap == null) aliasMap = new HashMap<>(0);
+        if (aliasMap == null) aliasMap = Collections.emptyMap();
 
         for (String str : confContexts) {
             if (Pattern.matches(MAP_REGEX, str)) continue;
@@ -106,7 +106,6 @@ public class ConfUtil {
             return null;
         }
     }
-
 
     private static final String EXEC_REGEX = "[\\s\\S]*!![A-Za-z0-9_]+[\\s\\S]*[A-Za-z0-9_]+:[\\s\\S]*";
     private static final String SPLIT_REGEX = "[\n\r]-{3,}[\n\r]";

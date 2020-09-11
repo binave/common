@@ -615,10 +615,9 @@ public class CharUtil {
     /**
      * https://tools.ietf.org/html/rfc5735#section-4
      */
-    public static boolean privateInternetsIpv4(String ipv4) {
+    public static boolean isPrivateInternetsIpv4(String ipv4) {
         return Pattern.matches(PrivateUseIPv4, ipv4);
     }
-
 
     /**
      * 获得 uri 包含的参数列表，相同的 key，会被忽略
