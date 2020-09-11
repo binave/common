@@ -610,6 +610,16 @@ public class CharUtil {
                 ).toString();
     }
 
+    private static final String PrivateUseIPv4 = "(10|127|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168)\\.[0-9][.0-9]+";
+
+    /**
+     * https://tools.ietf.org/html/rfc5735#section-4
+     */
+    public static boolean privateInternetsIpv4(String ipv4) {
+        return Pattern.matches(PrivateUseIPv4, ipv4);
+    }
+
+
     /**
      * 获得 uri 包含的参数列表，相同的 key，会被忽略
      * 注意：不支持编码后的字符
