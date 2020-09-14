@@ -73,7 +73,6 @@ public class ConfUtil {
         return configs;
     }
 
-
     private static final String CLASS_NAME_FROM_YAML_REGEX = "(?<=!!)[0-9A-Za-z_.]+";
 
     /**
@@ -98,13 +97,7 @@ public class ConfUtil {
             return null;
         }
 
-        try {
-            return new Yaml().load(str);
-        } catch (RuntimeException e) {
-            e.printStackTrace(); // 格式不正确
-            System.err.printf("yaml deserialize error %s\n", str);
-            return null;
-        }
+        return new Yaml().load(str);
     }
 
     private static final String EXEC_REGEX = "[\\s\\S]*!![A-Za-z0-9_]+[\\s\\S]*[A-Za-z0-9_]+:[\\s\\S]*";
