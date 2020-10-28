@@ -609,6 +609,21 @@ public class CharUtil {
                 ).toString();
     }
 
+    public static String randomNumbers(int len) {
+        if (len < 1) throw new IllegalArgumentException(
+                String.format("length: %d < 1", len)
+        );
+        // new SplittableRandom().
+        return ThreadLocalRandom.current().
+                ints().
+                limit(len).
+                collect(
+                        StringBuilder::new,
+                        (sb, i) -> sb.append((char) (Math.abs(i) % 10 + 48)),
+                        StringBuilder::append
+                ).toString();
+    }
+
     private static final String PrivateUseIPv4 = "(10|127|172\\.(1[6-9]|2[0-9]|3[01])|192\\.168)\\.[0-9][.0-9]+";
 
     /**
