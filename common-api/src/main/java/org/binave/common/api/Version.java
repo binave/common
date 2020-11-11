@@ -11,6 +11,6 @@ public interface Version {
 
     double getVersion();
 
-    Throwable check();
+    void check() throws RuntimeException;
 
 }
