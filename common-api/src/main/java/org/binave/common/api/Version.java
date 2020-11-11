@@ -11,4 +11,6 @@ public interface Version {
 
     double getVersion();
 
+    Throwable check();
+
 }

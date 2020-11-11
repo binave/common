@@ -28,6 +28,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -42,6 +43,9 @@ public class CodecUtil {
 
     /* ******** Hash ******** */
 
+    /**
+     * https://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html
+     */
     public enum Hash {
         MD5 {
             @Override
@@ -84,14 +88,24 @@ public class CodecUtil {
 
         static String hash(byte[] src, String algorithm) {
             try {
-                MessageDigest digest = MessageDigest.getInstance(algorithm);
-                return convertHexStr(digest.digest(src));
+                return convertHexStr(
+                        MessageDigest.getInstance(algorithm)
+                        .digest(src)
+                );
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
         }
 
         public static String convertHexStr(byte[] hash) {
+//            Formatter fmt = new Formatter();
+//            for (byte h : hash) {
+//                fmt.format("%02x", h);
+//            }
+//            String out = fmt.toString();
+//            fmt.close();
+//            return out;
+
             StringBuilder hexString = new StringBuilder();
             for (byte h : hash) {
                 String hex = Integer.toHexString(0xff & h);
