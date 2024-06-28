@@ -18,7 +18,7 @@ package org.binave.common.util;
 
 import com.google.android.apps.authenticator.otp.PasscodeGenerator;
 import com.google.android.apps.authenticator.util.Base32String;
-import org.binave.common.otp.TemporalPasscodeGenerator;
+import org.binave.common.otp.TOTP;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
@@ -28,7 +28,6 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -77,6 +76,7 @@ public class CodecUtil {
         /**
          * 计算字符的 hash
          */
+        @url()
         public String hash(String str) {
             return hash(CharUtil.toBytes(str));
         }
@@ -338,32 +338,33 @@ public class CodecUtil {
      *
      * @param seed 字符种子
      */
-    public static TemporalPasscodeGenerator generateTemporalPasscodeGenerator(String seed) {
-        return generateTemporalPasscodeGenerator(seed, 6);
+    public static TOTP generateTOTP(String seed) {
+        return generateTOTP(seed, 6);
     }
 
     /**
+     * TOTP: Time-Based One-Time Password
      *
-     * @param seed 字符种子
-     * @param len 1 ~ 9
+     * @param seed 字符种子，建议大于等于 40
+     * @param len 1 ~ 9，兼容性比较好的是 6
      */
-    public static TemporalPasscodeGenerator generateTemporalPasscodeGenerator(String seed, int len) {
+    public static TOTP generateTOTP(String seed, int len) {
         Mac mac;
         try {
             mac = Mac.getInstance("HMACSHA1");
             mac.init(new SecretKeySpec(
-                    Base32String.decode(seed),
-                    ""
+                    Base32String.decode(seed), ""
             ));
+
         } catch (InvalidKeyException | Base32String.DecodingException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
-        return new TemporalPasscodeGenerator() {
+        return new TOTP() {
             private PasscodeGenerator generator = new PasscodeGenerator(mac, len);
 
             @Override
-            public String generateCode(long state) {
+            public String generateTOTP(long state) {
                 try {
                     return generator.generateResponseCode(state);
                 } catch (GeneralSecurityException e) {
