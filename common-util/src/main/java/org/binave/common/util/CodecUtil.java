@@ -76,7 +76,6 @@ public class CodecUtil {
         /**
          * 计算字符的 hash
          */
-        @url()
         public String hash(String str) {
             return hash(CharUtil.toBytes(str));
         }
@@ -362,11 +361,15 @@ public class CodecUtil {
 
         return new TOTP() {
             private PasscodeGenerator generator = new PasscodeGenerator(mac, len);
+            // RFC 6238: 标准时间步长为 30 秒
+            private final long TIME_STEP = 30_000;
 
             @Override
             public String generateTOTP(long state) {
                 try {
-                    return generator.generateResponseCode(state);
+                    // 将毫秒时间戳转换为时间步数计数器
+                    long counter = state / TIME_STEP;
+                    return generator.generateResponseCode(counter);
                 } catch (GeneralSecurityException e) {
                     throw new RuntimeException(e);
                 }
@@ -375,7 +378,8 @@ public class CodecUtil {
             @Override
             public boolean verifyCode(long state, String code) {
                 try {
-                    return generator.verifyResponseCode(state, code);
+                    long counter = state / TIME_STEP;
+                    return generator.verifyResponseCode(counter, code);
                 } catch (GeneralSecurityException e) {
                     throw new RuntimeException(e);
                 }

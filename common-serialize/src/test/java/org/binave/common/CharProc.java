@@ -1,6 +1,5 @@
 package org.binave.common;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -51,7 +50,7 @@ public class CharProc {
         if (l < 1 || l > 24)
             return null;
         UUID uuid = UUID.randomUUID();
-        return DatatypeConverter.printBase64Binary(
+        return java.util.Base64.getEncoder().encodeToString(
                 longsToByteArray(
                         uuid.getLeastSignificantBits(),
                         uuid.getMostSignificantBits()

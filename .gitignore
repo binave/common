@@ -12,7 +12,9 @@
 
 # Avoid ignoring default file
 !.editorconfig
+!.gitattributes
 !.gitignore
+!.gitmodules
 !LICENSE
 !README.md
 
