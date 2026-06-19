@@ -14,11 +14,11 @@
 !.editorconfig
 !.gitattributes
 !.gitignore
-!.gitmodules
 !LICENSE
 !README.md
 
 # Ignore some directory
 .*/
+.gitmodules
 gradle/
 target/
